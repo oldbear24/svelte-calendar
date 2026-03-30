@@ -6,6 +6,7 @@
 	import AgendaView from './AgendaView.svelte';
 	import EventModal from './EventModal.svelte';
 	import { untrack } from 'svelte';
+	import { SvelteDate } from 'svelte/reactivity';
 
 	let {
 		events = [],
@@ -35,9 +36,9 @@
 			return currentDate.toLocaleDateString(undefined, { month: 'long', year: 'numeric' });
 		}
 		if (currentView === 'week') {
-			const startOfWeek = new Date(currentDate);
+			const startOfWeek = new SvelteDate(currentDate);
 			startOfWeek.setDate(currentDate.getDate() - currentDate.getDay());
-			const endOfWeek = new Date(startOfWeek);
+			const endOfWeek = new SvelteDate(startOfWeek);
 			endOfWeek.setDate(startOfWeek.getDate() + 6);
 
 			if (startOfWeek.getMonth() === endOfWeek.getMonth()) {
@@ -69,7 +70,7 @@
 	}
 
 	function navigate(direction: -1 | 1) {
-		const d = new Date(currentDate);
+		const d = new SvelteDate(currentDate);
 		if (currentView === 'month') {
 			d.setMonth(d.getMonth() + direction);
 		} else if (currentView === 'week') {
@@ -92,23 +93,21 @@
 	}
 </script>
 
-<div class="bg-base-100 flex h-full min-h-96 w-full flex-col overflow-hidden rounded-lg border border-base-300 shadow-sm">
+<div
+	class="flex h-full min-h-96 w-full flex-col overflow-hidden rounded-lg border border-base-300 bg-base-100 shadow-sm"
+>
 	<!-- Toolbar -->
 	<div class="flex shrink-0 items-center gap-2 border-b border-base-300 px-4 py-3">
 		<!-- Navigation -->
 		<div class="flex items-center gap-1">
 			<button
-				class="btn btn-ghost btn-sm btn-circle"
+				class="btn btn-circle btn-ghost btn-sm"
 				onclick={() => navigate(-1)}
 				aria-label="Previous"
 			>
 				‹
 			</button>
-			<button
-				class="btn btn-ghost btn-sm btn-circle"
-				onclick={() => navigate(1)}
-				aria-label="Next"
-			>
+			<button class="btn btn-circle btn-ghost btn-sm" onclick={() => navigate(1)} aria-label="Next">
 				›
 			</button>
 		</div>
@@ -125,7 +124,7 @@
 			{#each Object.keys(VIEW_LABELS) as v (v)}
 				{@const viewKey = v as CalendarView}
 				<button
-					class="btn btn-sm join-item {currentView === viewKey ? 'btn-primary' : 'btn-ghost'}"
+					class="btn join-item btn-sm {currentView === viewKey ? 'btn-primary' : 'btn-ghost'}"
 					onclick={() => (currentView = viewKey)}
 					aria-pressed={currentView === viewKey}
 				>

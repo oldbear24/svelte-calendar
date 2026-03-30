@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { CalendarEvent } from './types.js';
+	import { SvelteDate } from 'svelte/reactivity';
 
 	interface Props {
 		currentDate: Date;
@@ -27,9 +28,9 @@
 	const dayEvents = $derived(
 		events.filter((e) => {
 			if (e.allDay) return false;
-			const dayStart = new Date(currentDate);
+			const dayStart = new SvelteDate(currentDate);
 			dayStart.setHours(0, 0, 0, 0);
-			const dayEnd = new Date(currentDate);
+			const dayEnd = new SvelteDate(currentDate);
 			dayEnd.setHours(23, 59, 59, 999);
 			return new Date(e.start) <= dayEnd && new Date(e.end) >= dayStart;
 		})
@@ -38,18 +39,18 @@
 	const allDayEvents = $derived(
 		events.filter((e) => {
 			if (!e.allDay) return false;
-			const dayStart = new Date(currentDate);
+			const dayStart = new SvelteDate(currentDate);
 			dayStart.setHours(0, 0, 0, 0);
-			const dayEnd = new Date(currentDate);
+			const dayEnd = new SvelteDate(currentDate);
 			dayEnd.setHours(23, 59, 59, 999);
 			return new Date(e.start) <= dayEnd && new Date(e.end) >= dayStart;
 		})
 	);
 
 	function getEventStyle(event: CalendarEvent): string {
-		const dayStart = new Date(currentDate);
+		const dayStart = new SvelteDate(currentDate);
 		dayStart.setHours(0, 0, 0, 0);
-		const dayEnd = new Date(currentDate);
+		const dayEnd = new SvelteDate(currentDate);
 		dayEnd.setHours(24, 0, 0, 0);
 
 		const eventStart = new Date(event.start) < dayStart ? dayStart : new Date(event.start);
@@ -100,19 +101,18 @@
 	<div class="flex-1 overflow-y-auto">
 		<div class="relative" style="grid-template-columns: 64px 1fr; display: grid;">
 			<!-- Hour slots -->
-			{#each HOURS as hour}
+			{#each HOURS as hour (hour)}
 				<div
-					class="border-b border-r border-base-300 h-16 px-2 py-0.5 text-right text-xs text-base-content/40"
+					class="h-16 border-r border-b border-base-300 px-2 py-0.5 text-right text-xs text-base-content/40"
 					style="grid-column: 1"
 				>
 					{#if hour > 0}{formatHour(hour)}{/if}
 				</div>
-				<!-- svelte-ignore a11y_click_events_have_key_events a11y_no_noninteractive_element_interactions -->
 				<div
-					class="border-b border-base-300 h-16 hover:bg-base-200/40 transition-colors"
+					class="h-16 border-b border-base-300 transition-colors hover:bg-base-200/40"
 					style="grid-column: 2"
 					onclick={() => {
-						const slotDate = new Date(currentDate);
+						const slotDate = new SvelteDate(currentDate);
 						slotDate.setHours(hour, 0, 0, 0);
 						onSlotClick(slotDate);
 					}}

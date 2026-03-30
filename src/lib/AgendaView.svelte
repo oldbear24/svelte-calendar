@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { CalendarEvent } from './types.js';
+	import { SvelteDate, SvelteMap } from 'svelte/reactivity';
 
 	interface Props {
 		currentDate: Date;
@@ -13,9 +14,9 @@
 
 	// Show events from current date forward (up to 90 days)
 	const upcomingEvents = $derived.by(() => {
-		const start = new Date(currentDate);
+		const start = new SvelteDate(currentDate);
 		start.setHours(0, 0, 0, 0);
-		const end = new Date(start);
+		const end = new SvelteDate(start);
 		end.setDate(end.getDate() + 90);
 
 		return events
@@ -25,10 +26,10 @@
 
 	// Group events by date label
 	const groupedEvents = $derived.by(() => {
-		const groups = new Map<string, { label: string; date: Date; events: CalendarEvent[] }>();
+		const groups = new SvelteMap<string, { label: string; date: Date; events: CalendarEvent[] }>();
 
 		for (const event of upcomingEvents) {
-			const eventDate = new Date(event.start);
+			const eventDate = new SvelteDate(event.start);
 			eventDate.setHours(0, 0, 0, 0);
 			const key = eventDate.toDateString();
 
@@ -47,7 +48,7 @@
 
 	function formatDateLabel(date: Date): string {
 		if (isToday(date)) return 'Today';
-		const tomorrow = new Date(today);
+		const tomorrow = new SvelteDate(today);
 		tomorrow.setDate(today.getDate() + 1);
 		if (date.toDateString() === tomorrow.toDateString()) return 'Tomorrow';
 
@@ -83,10 +84,10 @@
 						class="flex h-12 w-12 shrink-0 flex-col items-center justify-center rounded-full text-center
 						{isToday(group.date) ? 'bg-primary text-primary-content' : 'bg-base-200 text-base-content'}"
 					>
-						<span class="text-xs font-medium leading-none">
+						<span class="text-xs leading-none font-medium">
 							{group.date.toLocaleDateString(undefined, { month: 'short' })}
 						</span>
-						<span class="text-lg font-bold leading-none">{group.date.getDate()}</span>
+						<span class="text-lg leading-none font-bold">{group.date.getDate()}</span>
 					</div>
 					<div>
 						<h3 class="font-semibold {isToday(group.date) ? 'text-primary' : 'text-base-content'}">

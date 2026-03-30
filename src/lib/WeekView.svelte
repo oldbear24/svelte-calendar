@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { CalendarEvent } from './types.js';
+	import { SvelteDate } from 'svelte/reactivity';
 
 	interface Props {
 		currentDate: Date;
@@ -14,12 +15,12 @@
 	const today = new Date();
 
 	const weekDays = $derived.by(() => {
-		const startOfWeek = new Date(currentDate);
+		const startOfWeek = new SvelteDate(currentDate);
 		startOfWeek.setDate(currentDate.getDate() - currentDate.getDay());
 		startOfWeek.setHours(0, 0, 0, 0);
 
 		return Array.from({ length: 7 }, (_, i) => {
-			const d = new Date(startOfWeek);
+			const d = new SvelteDate(startOfWeek);
 			d.setDate(startOfWeek.getDate() + i);
 			return d;
 		});
@@ -39,9 +40,9 @@
 	}
 
 	function getEventsForDayHour(date: Date): CalendarEvent[] {
-		const dayStart = new Date(date);
+		const dayStart = new SvelteDate(date);
 		dayStart.setHours(0, 0, 0, 0);
-		const dayEnd = new Date(date);
+		const dayEnd = new SvelteDate(date);
 		dayEnd.setHours(23, 59, 59, 999);
 
 		return events.filter((e) => {
@@ -53,9 +54,9 @@
 	}
 
 	function getEventStyle(event: CalendarEvent, date: Date): string {
-		const dayStart = new Date(date);
+		const dayStart = new SvelteDate(date);
 		dayStart.setHours(0, 0, 0, 0);
-		const dayEnd = new Date(date);
+		const dayEnd = new SvelteDate(date);
 		dayEnd.setHours(24, 0, 0, 0);
 
 		const eventStart = new Date(event.start) < dayStart ? dayStart : new Date(event.start);
@@ -72,9 +73,9 @@
 	}
 
 	function getAllDayEvents(date: Date): CalendarEvent[] {
-		const dayStart = new Date(date);
+		const dayStart = new SvelteDate(date);
 		dayStart.setHours(0, 0, 0, 0);
-		const dayEnd = new Date(date);
+		const dayEnd = new SvelteDate(date);
 		dayEnd.setHours(23, 59, 59, 999);
 
 		return events.filter((e) => {
@@ -88,9 +89,12 @@
 
 <div class="flex flex-1 flex-col overflow-hidden">
 	<!-- Day headers -->
-	<div class="grid border-b border-base-300" style="grid-template-columns: 64px repeat(7, minmax(0, 1fr))">
+	<div
+		class="grid border-b border-base-300"
+		style="grid-template-columns: 64px repeat(7, minmax(0, 1fr))"
+	>
 		<div class="border-r border-base-300"></div>
-		{#each weekDays as day, i}
+		{#each weekDays as day, i (day.toDateString())}
 			<div
 				class="border-r border-base-300 py-2 text-center last:border-r-0"
 				class:bg-base-200={isToday(day)}
@@ -115,7 +119,7 @@
 			<div class="border-r border-base-300 px-1 py-1 text-right text-xs text-base-content/40">
 				All day
 			</div>
-			{#each weekDays as day}
+			{#each weekDays as day (day.toDateString())}
 				<div class="min-h-6 border-r border-base-300 p-0.5 last:border-r-0">
 					{#each getAllDayEvents(day) as event (event.id)}
 						<button
@@ -133,41 +137,38 @@
 
 	<!-- Scrollable time grid -->
 	<div class="flex-1 overflow-y-auto">
-		<div
-			class="relative grid"
-			style="grid-template-columns: 64px repeat(7, minmax(0, 1fr))"
-		>
+		<div class="relative grid" style="grid-template-columns: 64px repeat(7, minmax(0, 1fr))">
 			<!-- Hour rows -->
-			{#each HOURS as hour}
+			{#each HOURS as hour (hour)}
 				<div
-					class="border-b border-base-300 border-r border-r-base-300 h-16 px-1 py-0.5 text-right text-xs text-base-content/40"
+					class="h-16 border-r border-b border-base-300 border-r-base-300 px-1 py-0.5 text-right text-xs text-base-content/40"
 					style="grid-column: 1"
 				>
 					{#if hour > 0}{formatHour(hour)}{/if}
 				</div>
-				{#each weekDays as _day, di}
-					<!-- svelte-ignore a11y_click_events_have_key_events a11y_no_noninteractive_element_interactions -->
+				{#each weekDays as day, di (di)}
 					<div
-						class="border-b border-r border-base-300 h-16 last:border-r-0 hover:bg-base-200/40 transition-colors"
+						class="h-16 border-r border-b border-base-300 transition-colors last:border-r-0 hover:bg-base-200/40"
 						style="grid-column: {di + 2}"
 						onclick={() => {
-							const slotDate = new Date(weekDays[di]);
+							const slotDate = new SvelteDate(day);
 							slotDate.setHours(hour, 0, 0, 0);
 							onSlotClick(slotDate);
 						}}
 						role="gridcell"
 						tabindex="0"
-						aria-label={`${weekDays[di].toLocaleDateString()} ${formatHour(hour)}`}
+						aria-label={`${day.toLocaleDateString()} ${formatHour(hour)}`}
 					></div>
 				{/each}
 			{/each}
 
 			<!-- Events overlay per day column -->
-			{#each weekDays as day, di}
+			{#each weekDays as day, di (day.toDateString())}
 				{@const dayEvents = getEventsForDayHour(day)}
 				<div
 					class="pointer-events-none absolute top-0"
-					style="left: calc(64px + {di} * ((100% - 64px) / 7)); width: calc((100% - 64px) / 7); height: {24 * 64}px"
+					style="left: calc(64px + {di} * ((100% - 64px) / 7)); width: calc((100% - 64px) / 7); height: {24 *
+						64}px"
 				>
 					{#each dayEvents as event (event.id)}
 						<button

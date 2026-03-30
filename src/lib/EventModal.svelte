@@ -28,7 +28,6 @@
 	}
 </script>
 
-<!-- svelte-ignore a11y_click_events_have_key_events a11y_no_noninteractive_element_interactions -->
 <dialog
 	bind:this={dialog}
 	class="modal"
@@ -47,36 +46,37 @@
 				></span>
 				<h3 id="event-modal-title" class="text-lg font-bold">{event.title}</h3>
 			</div>
-			<button class="btn btn-ghost btn-sm btn-circle" onclick={onClose} aria-label="Close">✕</button>
+			<button class="btn btn-circle btn-ghost btn-sm" onclick={onClose} aria-label="Close">✕</button
+			>
 		</div>
 
 		<div class="space-y-3 text-sm">
 			{#if event.allDay}
 				<div class="flex items-center gap-2">
-					<span class="text-base-content/60 w-20 shrink-0">Date</span>
+					<span class="w-20 shrink-0 text-base-content/60">Date</span>
 					<span>{formatDate(event.start)}</span>
 				</div>
 			{:else}
 				<div class="flex items-center gap-2">
-					<span class="text-base-content/60 w-20 shrink-0">Start</span>
+					<span class="w-20 shrink-0 text-base-content/60">Start</span>
 					<span>{formatDate(event.start)} at {formatTime(event.start)}</span>
 				</div>
 				<div class="flex items-center gap-2">
-					<span class="text-base-content/60 w-20 shrink-0">End</span>
+					<span class="w-20 shrink-0 text-base-content/60">End</span>
 					<span>{formatDate(event.end)} at {formatTime(event.end)}</span>
 				</div>
 			{/if}
 
 			{#if event.description}
 				<div class="flex items-start gap-2">
-					<span class="text-base-content/60 w-20 shrink-0">Details</span>
+					<span class="w-20 shrink-0 text-base-content/60">Details</span>
 					<p class="flex-1">{event.description}</p>
 				</div>
 			{/if}
 		</div>
 
 		<div class="modal-action">
-			<button class="btn btn-primary btn-sm" onclick={onClose}>Close</button>
+			<button class="btn btn-sm btn-primary" onclick={onClose}>Close</button>
 		</div>
 	</div>
 </dialog>

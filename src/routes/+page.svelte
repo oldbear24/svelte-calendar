@@ -1,11 +1,12 @@
 <script lang="ts">
 	import { Calendar } from '$lib/index.js';
 	import type { CalendarEvent } from '$lib/index.js';
+	import { SvelteDate } from 'svelte/reactivity';
 
 	const today = new Date();
 
 	function d(dayOffset: number, hour: number, minute = 0): Date {
-		const dt = new Date(today);
+		const dt = new SvelteDate(today);
 		dt.setDate(dt.getDate() + dayOffset);
 		dt.setHours(hour, minute, 0, 0);
 		return dt;
@@ -96,11 +97,13 @@
 	let lastEventClick: CalendarEvent | null = $state(null);
 </script>
 
-<div class="bg-base-200 min-h-screen p-4 md:p-8">
+<div class="min-h-screen bg-base-200 p-4 md:p-8">
 	<div class="mx-auto max-w-6xl">
 		<div class="mb-6">
 			<h1 class="text-3xl font-bold text-base-content">Svelte Calendar</h1>
-			<p class="mt-1 text-base-content/60">A Microsoft Outlook–style calendar built with Svelte 5 + DaisyUI</p>
+			<p class="mt-1 text-base-content/60">
+				A Microsoft Outlook–style calendar built with Svelte 5 + DaisyUI
+			</p>
 		</div>
 
 		<!-- Calendar fills the available height -->
@@ -116,13 +119,13 @@
 		<!-- Interaction feedback -->
 		<div class="mt-4 flex flex-wrap gap-4">
 			{#if lastSlotClick}
-				<div class="badge badge-outline badge-lg gap-1">
+				<div class="badge gap-1 badge-outline badge-lg">
 					<span class="opacity-60">Slot clicked:</span>
 					{lastSlotClick.toLocaleString()}
 				</div>
 			{/if}
 			{#if lastEventClick}
-				<div class="badge badge-primary badge-lg gap-1">
+				<div class="badge gap-1 badge-lg badge-primary">
 					<span class="opacity-80">Event clicked:</span>
 					{lastEventClick.title}
 				</div>
@@ -130,4 +133,3 @@
 		</div>
 	</div>
 </div>
-
