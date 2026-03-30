@@ -1,65 +1,108 @@
-# Svelte library
+# svelte-calendar
 
-Everything you need to build a Svelte library, powered by [`sv`](https://npmjs.com/package/sv).
+A Microsoft Outlook–style calendar component for Svelte 5, styled with [DaisyUI](https://daisyui.com/) v5 and [Tailwind CSS](https://tailwindcss.com/) v4.
 
-Read more about creating a library [in the docs](https://svelte.dev/docs/kit/packaging).
+## Features
 
-## Creating a project
+- **Four view modes** — Month, Week, Day, and Agenda
+- **Pagination** — Prev / Next / Today navigation for every view
+- **Events** — Display events as colored chips (month) or time-positioned blocks (week/day); grouped list in agenda
+- **Event detail modal** — Click any event to open a DaisyUI dialog with full details
+- **Slot click callback** — Click an empty calendar slot to receive the target date
+- **All-day events** — Rendered in a dedicated all-day row in week/day views
+- **Overflow handling** — Month view shows "+N more" when a day has too many events
+- **Accessible** — ARIA roles, labels, and keyboard navigation throughout
+- **TypeScript** — Fully typed props and exported types
 
-If you're seeing this, you've probably already done this step. Congrats!
-
-```sh
-# create a new project in the current directory
-npx sv create
-
-# create a new project in my-app
-npx sv create my-app
-```
-
-To recreate this project with the same configuration:
+## Installation
 
 ```sh
-# recreate this project
-npx sv@0.13.0 create --template library --types ts --add prettier eslint vitest="usages:unit,component" tailwindcss="plugins:none" --no-install .
+npm install svelte-calendar
 ```
 
-## Developing
+> **Peer dependencies:** `svelte ^5.0.0`
+>
+> The component uses Tailwind CSS v4 + DaisyUI v5. Make sure both are configured in your project:
+>
+> ```css
+> /* app.css */
+> @import 'tailwindcss';
+> @plugin 'daisyui';
+> ```
 
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
+## Usage
+
+```svelte
+<script lang="ts">
+	import { Calendar } from 'svelte-calendar';
+	import type { CalendarEvent } from 'svelte-calendar';
+
+	const events: CalendarEvent[] = [
+		{
+			id: '1',
+			title: 'Team Standup',
+			start: new Date('2026-03-30T09:00:00'),
+			end: new Date('2026-03-30T09:30:00'),
+			color: '#6366f1',
+			description: 'Daily sync with the engineering team'
+		},
+		{
+			id: '2',
+			title: 'Conference',
+			start: new Date('2026-04-04'),
+			end: new Date('2026-04-04'),
+			allDay: true,
+			color: '#8b5cf6'
+		}
+	];
+</script>
+
+<Calendar
+	{events}
+	view="month"
+	onEventClick={(event) => console.log('clicked', event)}
+	onSlotClick={(date) => console.log('slot', date)}
+/>
+```
+
+## Props
+
+| Prop           | Type                             | Default   | Description                                               |
+| -------------- | -------------------------------- | --------- | --------------------------------------------------------- |
+| `events`       | `CalendarEvent[]`                | `[]`      | Array of events to display                                |
+| `view`         | `CalendarView`                   | `'month'` | Initial view: `'month'`, `'week'`, `'day'`, or `'agenda'` |
+| `onEventClick` | `(event: CalendarEvent) => void` | —         | Called when the user clicks an event                      |
+| `onSlotClick`  | `(date: Date) => void`           | —         | Called when the user clicks an empty calendar slot        |
+
+## Types
+
+```typescript
+interface CalendarEvent {
+	id: string;
+	title: string;
+	start: Date;
+	end: Date;
+	color?: string; // CSS color string, defaults to indigo
+	description?: string;
+	allDay?: boolean;
+}
+
+type CalendarView = 'month' | 'week' | 'day' | 'agenda';
+```
+
+## Development
 
 ```sh
-npm run dev
-
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
+npm install
+npm run dev        # start the demo app
+npm run build      # build the library + demo
+npm run test       # run unit & component tests
+npm run lint       # prettier + eslint check
 ```
-
-Everything inside `src/lib` is part of your library, everything inside `src/routes` can be used as a showcase or preview app.
-
-## Building
-
-To build your library:
-
-```sh
-npm pack
-```
-
-To create a production version of your showcase app:
-
-```sh
-npm run build
-```
-
-You can preview the production build with `npm run preview`.
-
-> To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
 
 ## Publishing
 
-Go into the `package.json` and give your package the desired name through the `"name"` option. Also consider adding a `"license"` field and point it to a `LICENSE` file which you can create from a template (one popular option is the [MIT license](https://opensource.org/license/mit/)).
-
-To publish your library to [npm](https://www.npmjs.com):
-
 ```sh
+npm run prepack    # builds the dist/ package output
 npm publish
 ```
