@@ -1,0 +1,11 @@
+export interface CalendarEvent {
+	id: string;
+	title: string;
+	start: Date;
+	end: Date;
+	color?: string;
+	description?: string;
+	allDay?: boolean;
+}
+
+export type CalendarView = 'month' | 'week' | 'day' | 'agenda';
